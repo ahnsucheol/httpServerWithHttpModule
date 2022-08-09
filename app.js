@@ -21,7 +21,7 @@ const users = [
 
 const posts = [
   {
-    id: 1, // post 별로 다른 값
+    id: 1, // post 별로 다른 값   posts[0]["id"]
     title: "간단한 HTTP API 개발 시작!",
     content: "Node.js에 내장되어 있는 http 모듈을 사용해서 HTTP server를 구현.",
     userId: 1, // posts["userId"] === users["id"]
@@ -82,6 +82,23 @@ app.get("/search", (req, res) => {
   }
 
   res.json({ data: searchPosts });
+});
+
+// 게시물 정보 수정
+app.patch("/modify", (req, res) => {
+  const modify = req.body.data;
+
+  for (let j = 0; j < posts.length; j++) {
+    if (modify["id"] === posts[j]["id"]) {
+      for (value in modify) {
+        console.log("originalpost: ", posts[j][value]);
+        posts[j][value] = modify[value];
+        console.log("modifiedpost: ", posts[j][value]);
+      }
+    }
+  }
+
+  res.json({ message: posts });
 });
 
 const server = http.createServer(app);
