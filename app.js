@@ -1,6 +1,5 @@
 const http = require("http");
 const express = require("express");
-const { createUser } = require("./user");
 
 const app = express();
 app.use(express.json());
@@ -35,7 +34,36 @@ const posts = [
   },
 ];
 
-app.get("/signup", createUser);
+app.get("/signup", (req, res) => {
+  const user = req.body.data;
+  console.log(user);
+
+  users.push({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    password: user.password,
+  });
+  console.log("after: ", users);
+
+  res.json({ message: "userCreated" });
+});
+
+app.get("/post", (req, res) => {
+  const post = req.body.data;
+  console.log(post);
+
+  posts.push({
+    id: post.id,
+    title: post.title,
+    content: post.content,
+    userId: post.userId,
+  });
+
+  console.log("after: ", posts);
+
+  res.json({ message: "postCreated" });
+});
 
 const server = http.createServer(app);
 
