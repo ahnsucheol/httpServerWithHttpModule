@@ -6,7 +6,7 @@ app.use(express.json());
 
 const users = [
   {
-    id: 1,
+    id: 1, //user 별로 다른 값
     name: "Rebekah Johnson",
     email: "Glover12345@gmail.com",
     password: "123qwe",
@@ -21,10 +21,10 @@ const users = [
 
 const posts = [
   {
-    id: 1,
+    id: 1, // post 별로 다른 값
     title: "간단한 HTTP API 개발 시작!",
     content: "Node.js에 내장되어 있는 http 모듈을 사용해서 HTTP server를 구현.",
-    userId: 1,
+    userId: 1, // posts["userId"] === users["id"]
   },
   {
     id: 2,
@@ -34,9 +34,9 @@ const posts = [
   },
 ];
 
-app.get("/signup", (req, res) => {
+// 회원가입
+app.post("/signup", (req, res) => {
   const user = req.body.data;
-  console.log(user);
 
   users.push({
     id: user.id,
@@ -44,14 +44,13 @@ app.get("/signup", (req, res) => {
     email: user.email,
     password: user.password,
   });
-  console.log("after: ", users);
 
   res.json({ message: "userCreated" });
 });
 
-app.get("/post", (req, res) => {
+// 게시물 등록
+app.post("/post", (req, res) => {
   const post = req.body.data;
-  console.log(post);
 
   posts.push({
     id: post.id,
@@ -60,9 +59,29 @@ app.get("/post", (req, res) => {
     userId: post.userId,
   });
 
-  console.log("after: ", posts);
-
   res.json({ message: "postCreated" });
+});
+
+// 게시물 검색
+app.get("/search", (req, res) => {
+  const searchPosts = [];
+
+  // posts[i]["userId"] === users["id"]인 users의 name 받아오기
+  for (let i = 0; i < posts.length; i++) {
+    for (let j = 0; j < users.length; j++) {
+      if (posts[i]["userId"] === users[j]["id"]) {
+        searchPosts.push({
+          userID: posts[i].userId,
+          userName: users[j].name,
+          postingId: posts[i].id,
+          postingTitle: posts[i].title,
+          postingContent: posts[i].content,
+        });
+      }
+    }
+  }
+
+  res.json({ data: searchPosts });
 });
 
 const server = http.createServer(app);
