@@ -1,5 +1,6 @@
 const http = require("http");
 const express = require("express");
+const { application } = require("express");
 
 const app = express();
 app.use(express.json());
@@ -63,9 +64,8 @@ app.post("/post", (req, res) => {
 });
 
 // 게시물 검색
-app.get("/search", (req, res) => {
+app.get("/search/posts", (req, res) => {
   const searchPosts = [];
-
   // posts[i]["userId"] === users["id"]인 users의 name 받아오기
   for (let i = 0; i < posts.length; i++) {
     for (let j = 0; j < users.length; j++) {
@@ -85,20 +85,60 @@ app.get("/search", (req, res) => {
 });
 
 // 게시물 정보 수정
+
+/*
+{
+  "data": {
+    "id": 1,
+    "title": "바뀐 title",
+    "content": "바뀐 content",
+  }
+}
+*/
+
 app.patch("/modify", (req, res) => {
   const modify = req.body.data;
+  const modifiedpost = {};
 
-  for (let j = 0; j < posts.length; j++) {
-    if (modify["id"] === posts[j]["id"]) {
+  for (let i = 0; i < posts.length; i++) {
+    if (modify["id"] === posts[i]["id"]) {
       for (value in modify) {
-        console.log("originalpost: ", posts[j][value]);
-        posts[j][value] = modify[value];
-        console.log("modifiedpost: ", posts[j][value]);
+        posts[i][value] = modify[value];
+      }
+      // posts[i]["userId"]와 users[j][id]가 같은 요소의 ["name"] 가져오기
+      for (let j = 0; j < users.length; j++) {
+        if (posts[i]["userId"] === users[j]["id"]) {
+          modifiedpost["userId"] = users[j]["id"];
+          modifiedpost["userName"] = users[j]["name"];
+          modifiedpost["postingId"] = posts[i]["id"];
+          modifiedpost["postingTitle"] = posts[i]["title"];
+          modifiedpost["postingContent"] = posts[i]["content"];
+        }
       }
     }
   }
+  res.json({ data: modifiedpost });
+});
 
-  res.json({ message: posts });
+// 게시물 삭제
+
+/*
+{
+  "data": {
+    "id": 1
+  }
+}
+*/
+app.delete("/delete", (req, res) => {
+  const del = req.body.data;
+  const delPostId = del["id"];
+
+  for (let i = 0; i < posts.length; i++) {
+    if (posts[i]["id"] == delPostId) {
+      posts.splice(i, 1);
+    }
+  }
+  res.json({ message: "postingDeleted" });
 });
 
 const server = http.createServer(app);
