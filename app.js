@@ -141,6 +141,41 @@ app.delete("/delete", (req, res) => {
   res.json({ message: "postingDeleted" });
 });
 
+// 유저와 게시물 조회하기
+
+/*
+{
+  "data": {
+    "id": 1
+  }
+}
+*/
+app.get("/search/postsbyuser", (req, res) => {
+  const userId = req.body.data["id"];
+  const userData = {};
+  const postsByUser = [];
+
+  for (let i = 0; i < users.length; i++) {
+    if (users[i]["id"] == userId) {
+      userData["userID"] = userId;
+      userData["userName"] = users[i]["name"];
+
+      for (let j = 0; j < posts.length; j++) {
+        if (userId == posts[j]["userId"]) {
+          postsByUser.push({
+            postingId: posts[j]["id"],
+            postingTitle: posts[j]["title"],
+            postingContent: posts[j]["content"],
+          });
+        }
+      }
+      userData["postings"] = postsByUser;
+    }
+  }
+
+  res.json({ data: userData });
+});
+
 const server = http.createServer(app);
 
 server.listen(8000, () => {
